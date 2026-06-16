@@ -1,0 +1,10 @@
+x = input('Enter number:')
+if x < 10
+  print('Great')
+elif x > 10
+  print('Not great')
+elif x > 20
+  print ('not so great')
+else
+  print ('Meh!')
+print(x)
