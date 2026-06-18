@@ -14,6 +14,9 @@ Sub Merge_PerCase_With_All_Columns()
     Set wsData = ThisWorkbook.Sheets("PerCaseBreakdown")
     Set wsLookup = ThisWorkbook.Sheets("Casestocheck")
 
+    ' Create dictionary
+    Set dict = CreateObject("Scripting.Dictionary")
+
     ' Create or set Output sheet
     On Error Resume Next
     Set wsOutput = ThisWorkbook.Sheets("Output")
@@ -31,14 +34,12 @@ Sub Merge_PerCase_With_All_Columns()
     lastRowLookup = wsLookup.Cells(wsLookup.Rows.Count, 3).End(xlUp).Row ' Case ID in Column C
     lastColData = wsData.Cells(1, wsData.Columns.Count).End(xlToLeft).Column
 
-    ' Create dictionary
-    Set dict = CreateObject("Scripting.Dictionary")
-
     ' Load lookup values from Casestocheck (columns E,F,I,J,K,L,M)
     For i = 2 To lastRowLookup
         caseID = wsLookup.Cells(i, 3).Value ' Column C = Case ID
         
-        If Not dict.Exists(caseID) Then
+        ' Add validation to avoid empty cells and duplicates
+        If Not dict.Exists(caseID) And caseID <> "" Then
             dict.Add caseID, Array( _
                 wsLookup.Cells(i, 5).Value, _   ' Column E
                 wsLookup.Cells(i, 6).Value, _   ' Column F
