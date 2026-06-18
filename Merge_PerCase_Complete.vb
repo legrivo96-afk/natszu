@@ -24,42 +24,29 @@ Sub Merge_PerCase_With_All_Columns()
 
     If wsOutput Is Nothing Then
         Set wsOutput = ThisWorkbook.Sheets.Add
-        wsOutput.name = "Output"
+        wsOutput.Name = "Output"
     Else
         wsOutput.Cells.Clear
     End If
 
     ' Get dimensions
     lastRowData = wsData.Cells(wsData.Rows.Count, 1).End(xlUp).Row
-    lastRowLookup = wsLookup.Cells(wsLookup.Rows.Count, 3).End(xlUp).Row ' Case ID in Column C
+    lastRowLookup = wsLookup.Cells(wsLookup.Rows.Count, 3).End(xlUp).Row
     lastColData = wsData.Cells(1, wsData.Columns.Count).End(xlToLeft).Column
 
-    ' Load lookup values from Casestocheck (columns E,F,I,J,K,L,M)
+    ' Load lookup values from Casestocheck (columns E, F, I, J, K, L, M)
     For i = 2 To lastRowLookup
-        caseID = wsLookup.Cells(i, 3).Value ' Column C = Case ID
+        caseID = wsLookup.Cells(i, 3).Value
         
-        ' Add validation to avoid empty cells and duplicates
         If Not dict.Exists(caseID) And caseID <> "" Then
-            dict.Add caseID, Array( _
-                wsLookup.Cells(i, 5).Value, _   ' Column E
-                wsLookup.Cells(i, 6).Value, _   ' Column F
-                wsLookup.Cells(i, 9).Value, _   ' Column I
-                wsLookup.Cells(i, 10).Value, _  ' Column J
-                wsLookup.Cells(i, 11).Value, _  ' Column K
-                wsLookup.Cells(i, 12).Value, _  ' Column L
-                wsLookup.Cells(i, 13).Value _   ' Column M
-            )
+            dict.Add caseID, Array(wsLookup.Cells(i, 5).Value, wsLookup.Cells(i, 6).Value, wsLookup.Cells(i, 9).Value, wsLookup.Cells(i, 10).Value, wsLookup.Cells(i, 11).Value, wsLookup.Cells(i, 12).Value, wsLookup.Cells(i, 13).Value)
         End If
     Next i
 
     ' Copy all headers from PerCaseBreakdown
-    ' Headers: CaseID, EmailIn_InPeriod, EmailIn_OutPeriod, EmailOut_InPeriod, 
-    '          EmailOut_OutPeriod, TotalEmailIn, TotalEmailOut, PhoneIn_In, 
-    '          PhoneIn_Out, PhoneOut_In, PhoneOut_Out, Chat_In, Chat_Out, 
-    '          WhatsApp_In, WhatsApp_Out, Total_In, Total_Out, TotalInteractions, PeriodName
     wsData.Rows(1).Copy wsOutput.Rows(1)
 
-    ' Add headers from lookup sheet (E,F,I,J,K,L,M)
+    ' Add headers from lookup sheet (E, F, I, J, K, L, M)
     wsOutput.Cells(1, lastColData + 1).Value = wsLookup.Cells(1, 5).Value
     wsOutput.Cells(1, lastColData + 2).Value = wsLookup.Cells(1, 6).Value
     wsOutput.Cells(1, lastColData + 3).Value = wsLookup.Cells(1, 9).Value
@@ -70,28 +57,24 @@ Sub Merge_PerCase_With_All_Columns()
 
     outputRow = 2
 
-    ' Merge process - copy all data rows
+    ' Merge process
     For i = 2 To lastRowData
-
         ' Copy entire row from PerCaseBreakdown
-        wsOutput.Cells(outputRow, 1).Resize(1, lastColData).Value = _
-            wsData.Cells(i, 1).Resize(1, lastColData).Value
+        wsOutput.Cells(outputRow, 1).Resize(1, lastColData).Value = wsData.Cells(i, 1).Resize(1, lastColData).Value
 
-        ' Get Case ID from first column
+        ' Get Case ID
         caseID = wsData.Cells(i, 1).Value
 
-        ' Append 7 lookup columns
+        ' Append lookup columns
         If dict.Exists(caseID) Then
             wsOutput.Cells(outputRow, lastColData + 1).Resize(1, 7).Value = dict(caseID)
         Else
-            ' Fill with "No Match" if Case ID not found in lookup
             For j = 1 To 7
                 wsOutput.Cells(outputRow, lastColData + j).Value = "No Match"
             Next j
         End If
 
         outputRow = outputRow + 1
-
     Next i
 
     ' Format output sheet
